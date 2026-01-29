@@ -62,7 +62,9 @@ const SECURITY_HEADERS = {
   'X-XSS-Protection': '1; mode=block',
 };
 
-function sanitizeIp(ip) {
+function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  const ip = forwarded ? forwarded.split(',')[0].trim() : req.socket.remoteAddress;
   if (!ip) return 'unknown';
   return ip.startsWith('::ffff:') ? ip.slice(7) : ip;
 }
@@ -70,7 +72,7 @@ function sanitizeIp(ip) {
 function writeLogEntry(statusCode, req, extra = {}) {
   const entry = {
     timestamp: new Date().toISOString(),
-    ip: sanitizeIp(req.socket?.remoteAddress),
+    ip: getClientIp(req),
     method: req.method,
     url: req.url,
     status: statusCode,
@@ -87,7 +89,7 @@ function writeLogEntry(statusCode, req, extra = {}) {
 }
 
 function isRateLimited(req) {
-  const ip = sanitizeIp(req.socket?.remoteAddress);
+  const ip = getClientIp(req);
   const now = Date.now();
   const bucket = rateBuckets.get(ip) || { start: now, count: 0 };
 
@@ -313,7 +315,7 @@ const server = http.createServer((req, res) => {
     return send400(req, res, { reason: 'url_parse_failed' });
   }
 
-  const ip = sanitizeIp(req.socket?.remoteAddress);
+  const ip = getClientIp(req);
 
   if (isIpBanned(ip)) {
     return send403(req, res, { reason: 'ip_banned', banExpires: bannedIps.get(ip) });
