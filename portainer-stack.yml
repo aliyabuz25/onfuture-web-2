@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  onfuture:
+    container_name: onfuture-web
+    restart: unless-stopped
+    build:
+      context: https://github.com/aliyabuz25/v2.git
+      dockerfile: Dockerfile
+    ports:
+      - "6985:6985"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - onfuture-network
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+networks:
+  onfuture-network:
+    driver: bridge
