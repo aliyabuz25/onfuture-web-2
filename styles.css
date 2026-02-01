@@ -171,7 +171,7 @@ body>div[id$="-container"]:not(#hero-container) {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: clamp(12px, 2vw, 24px);
+    gap: 20px;
     padding: 0;
     width: 100%;
     max-width: 717px;
