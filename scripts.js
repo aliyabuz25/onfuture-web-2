@@ -55,9 +55,7 @@ function initPage() {
   const techProgramsGrid = document.querySelector('.tech-grid[data-tab="tech"]');
   const faqItems = document.querySelectorAll(".faq-item");
 
-  const DEFAULT_LANGUAGE = "az";
-  const getI18nNodes = () => document.querySelectorAll("[data-i18n-key]");
-  const translationCache = {};
+
 
   const formatStudyDescriptions = () => {
     document.querySelectorAll(".study-card-desc").forEach((desc) => {
@@ -83,28 +81,14 @@ function initPage() {
   };
 
 
-  const applyTranslations = (dictionary) => {
-    getI18nNodes().forEach((element) => {
-      const key = element.dataset.i18nKey;
-      const translation = dictionary[key];
-      if (typeof translation === "string") {
-        if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
-          element.placeholder = translation;
-        } else {
-          element.textContent = translation;
-        }
-      }
-    });
-    formatStudyDescriptions();
-  };
+
 
   const addProgram = (
     badgetext,
     title,
     img,
     desc,
-    lessoncoynt,
-    { badgeKey, titleKey, descKey, lessonsKey = "tech.lessonCount", applyKey = "tech.apply" } = {}
+    lessoncoynt
   ) => {
     const card = document.createElement("div");
     card.className = "tech-card";
@@ -112,11 +96,11 @@ function initPage() {
     const chip = document.createElement("div");
     chip.className = "tech-chip";
     chip.textContent = badgetext;
-    if (badgeKey) chip.dataset.i18nKey = badgeKey;
+
 
     const heading = document.createElement("h3");
     heading.textContent = title;
-    if (titleKey) heading.dataset.i18nKey = titleKey;
+
 
     const media = document.createElement("div");
     media.className = "tech-media";
@@ -128,7 +112,7 @@ function initPage() {
     const description = document.createElement("p");
     description.className = "tech-desc";
     description.textContent = desc;
-    if (descKey) description.dataset.i18nKey = descKey;
+
 
     const footer = document.createElement("div");
     footer.className = "tech-footer";
@@ -142,14 +126,14 @@ function initPage() {
     icon.height = 20;
     const lessonSpan = document.createElement("span");
     lessonSpan.textContent = lessoncoynt;
-    if (lessonsKey) lessonSpan.dataset.i18nKey = lessonsKey;
+
     lessons.append(icon, lessonSpan);
 
     const button = document.createElement("button");
     button.className = "tech-apply";
     button.type = "button";
     button.textContent = "Müraciət et";
-    if (applyKey) button.dataset.i18nKey = applyKey;
+
 
     footer.append(lessons, button);
     card.append(chip, heading, media, description, footer);
@@ -198,40 +182,14 @@ function initPage() {
           program.img,
           program.desc,
           program.lessons,
-          {
-            badgeKey: program.badgeKey,
-            titleKey: program.titleKey,
-            descKey: program.descKey,
-          }
+
         )
       );
     });
     techProgramsGrid.insertBefore(fragment, techProgramsGrid.firstChild);
   }
 
-  const loadTranslationFile = async (code) => {
-    if (translationCache[code]) {
-      return translationCache[code];
-    }
-    try {
-      const response = await fetch(`/${code}.json`);
-      if (!response.ok) {
-        throw new Error(`Unable to fetch ${code}.json`);
-      }
-      const data = await response.json();
-      translationCache[code] = data;
-      return data;
-    } catch (error) {
-      console.error(error);
-      return {};
-    }
-  };
 
-  const setLanguage = (code) => {
-    loadTranslationFile(code).then((dictionary) => {
-      applyTranslations(dictionary);
-    });
-  };
 
   const alignEllipses = () => {
     if (window.innerWidth < 992) return;
@@ -511,7 +469,7 @@ function initPage() {
   };
 
 
-  setLanguage(DEFAULT_LANGUAGE);
+  formatStudyDescriptions();
   alignEllipses();
   window.addEventListener("resize", alignEllipses);
   enableHeroElementSwap();
